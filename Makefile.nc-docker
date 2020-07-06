@@ -35,7 +35,7 @@ client: network ## クライアント側からncでTCP接続確認
 	$(call docker-run,$(DOCKER_CLIENT_HOST)) bash -c "echo hello | nc $(DOCKER_SERVER_HOST) $(DOCKER_NC_PORT)"
 
 clean: ## Dockerコンテナやnetworkを片付け
-	docker container ls --quiet --filter 'name=($(DOCKER_SERVER_CLIENT)|$(DOCKER_CLIENT))' \
+	docker container ls --quiet --filter 'name=($(DOCKER_SERVER_HOST)|$(DOCKER_CLIENT_HOST))' \
 	| xargs -I {container-id} docker container stop {container-id}
 	docker network ls --quiet --filter 'name=$(DOCKER_NETWORK_NAME)' \
 	| xargs -I {network-id} docker network rm {network-id}

@@ -1,0 +1,35 @@
+= netcat
+
+== 流れ
+
+----
+$ make build
+----
+
+.ターミナル-1
+----
+$ make server
+----
+
+.ターミナル-2
+----
+$ make client
+----
+
+== Help
+
+----
+$ make help
+######################################################################
+# Makeタスク一覧
+# $ make XXX
+# or
+# $ make XXX --dry-run
+######################################################################
+setup-gitignore      .gitignoreをsetup
+help                 Make タスク一覧
+build                Docker imageをbuild
+server               サーバ側としてncでlisten
+client               クライアント側からncでTCP接続確認
+clean                Dockerコンテナやnetworkを片付け
+----
