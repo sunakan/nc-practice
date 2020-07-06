@@ -1,0 +1,10 @@
+include Makefile.variables
+
+################################################################################
+# .gitignoreをDL
+################################################################################
+.gitignore:
+	curl --output .gitignore $(GIT_IGNORE_URL)
+
+.PHONY: setup-gitignore
+setup-gitignore: .gitignore ## .gitignoreをsetup

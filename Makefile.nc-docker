@@ -1,0 +1,41 @@
+include Makefile.variables
+
+################################################################################
+# マクロ
+################################################################################
+# $(1):コンテナ名
+define docker-run
+  docker run \
+    --rm \
+    --interactive \
+    --tty \
+    --network $(DOCKER_NETWORK_NAME) \
+    --name $(1) \
+    --hostname $(1) \
+    $(DOCKER_IMAGE_REPOSITORY):latest
+endef
+
+################################################################################
+# タスク
+################################################################################
+build: ## Docker imageをbuild
+	docker build . \
+		--build-arg DOCKER_DEBIAN_TAG=$(DOCKER_DEBIAN_TAG) \
+		--tag $(DOCKER_IMAGE_REPOSITORY):latest
+
+# Dockerで利用するnetwork作成
+network:
+	( docker network ls | grep $(DOCKER_NETWORK_NAME) ) \
+	|| docker network create --subnet $(DOCKER_IP_SUBNET) $(DOCKER_NETWORK_NAME)
+
+server: network ## サーバ側としてncでlisten
+	$(call docker-run,$(DOCKER_SERVER_HOST)) nc -s 0.0.0.0 -l -p $(DOCKER_NC_PORT)
+
+client: network ## クライアント側からncでTCP接続確認
+	$(call docker-run,$(DOCKER_CLIENT_HOST)) bash -c "echo hello | nc $(DOCKER_SERVER_HOST) $(DOCKER_NC_PORT)"
+
+clean: ## Dockerコンテナやnetworkを片付け
+	docker container ls --quiet --filter 'name=($(DOCKER_SERVER_CLIENT)|$(DOCKER_CLIENT))' \
+	| xargs -I {container-id} docker container stop {container-id}
+	docker network ls --quiet --filter 'name=$(DOCKER_NETWORK_NAME)' \
+	| xargs -I {network-id} docker network rm {network-id}
